@@ -1,38 +1,41 @@
 require('colors');
-const { guardarDB } = require('./helpers/guardarArchivo');
-const { inquirerMenu, leerInput, pausa, mostrarId}=require('./helpers/inquirer');
-const Tareas= require('./models/tareas')
+const { inquirerMenu, leerInput, pausa,menuBorrar,confirmar}=require('./helpers/inquirer');
+const{Tareas}= require ('./models/tarea')
 console.clear();
 const main =async()=>{
-
-
-        let opcion='';
+        
         const tareas= new Tareas();
+        let opcion='';
         do {
-            //edsta opcion imprime el menu
+            console.clear();
+            //esta opcion imprime el menu
             opcion= await inquirerMenu() 
             switch (opcion) {
-            case '1':
-                const descri= await leerInput('descripcion:')
-                tareas.crearTarea(descri)
-                //crear opcione
+                case '1':
+                    console.clear();
+                    //crear tarea
+                    const dec=await leerInput();
+                    tareas.newTarea(dec);
+            
             break;
             case '2':
-                //mostrar
-                console.log(tareas.listadoArray)
+                console.clear();
+            // listar tarea
+            tareas.getTarea();
+            await pausa(`Presione ${'enter'.green} para continuar`)
             break;
             case '3':
-                //borrar
-                // const borrar= await mostrarId(tareas.listadoArray)
-                // console.log(borrar)
+                const array = tareas.traerDataFromDB();
+                const deleteID = await menuBorrar(array);
+                const ok = await confirmar(`'¿ Desea ${ 'borrar'.red } la ${'tarea'.green }? '`);
+                (ok) ? tareas.deleteData(deleteID) : false
+                await pausa(`Presione ${'Enter'.green} para Continuar `);
             break;
+            case '0':
         
         }
-            guardarDB(tareas.listadoArray)
-        
-            await pausa();
-
+    
         } while (opcion !=='0');
+        //el do while se va a ejecutar mientras que opciones sea de cero
 }
-
 main();

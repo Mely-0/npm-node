@@ -22,8 +22,8 @@ const preguntas = [
                 name:`${'3.'.green} Borrar tarea`
             },
             {
-                value: '4',
-                name:`${'4.'.green} Salir`
+                value: '0',
+                name:`${'0.'.green} Salir`
             }
         ]
     }
@@ -33,41 +33,91 @@ const inquirerMenu= async()=>{
     console.log('===================================='.green)
     console.log('=======Seleccione una opcion========'.white)
     console.log('===================================='.green)
-
+  // el await espera al inquierer , que es una promesa y cuando este se resuelva los guarda en opcion y de ahi lo retornamos 
     const {opcion}= await inquirer.prompt(preguntas)// para hacer una pregunta
     return opcion
 }
-const pausa=async()=>{
-    const question=[
-        {
+const pausa=async(mensaje)=>{
+   const {pausa}= await inquirer.prompt
+        ([{
             type:'input',
             name:'enter',
-            message:`Presione ${'enter'.green} para continuar`
-        }
-    ]
-    const {enter}= await inquirer.prompt(question)
-    return enter
+            message:mensaje
+        }])
+    return pausa;
 }
-const leerInput=async(mensaje)=>{
-const question=[
-    {
+const leerInput=async()=>{
+const input = await inquirer.prompt({
         type:'input',
-        name:'desc',
-        message:mensaje,
-        //el validate para no permitir que no me envie un valor , sienpre tiene que recirbir un valor, forzar a la persona que ingrese un valor
-        validate(value){
-            if(value.length ===0){
-                return 'por favor ingrse un valor'
+        name:'descripcion',
+        message:'ingrese la tarea ',
+        validate: function (input) {
+            // Declare function as asynchronous, and save the done callback
+            var done = this.async();
+        
+                input = input.trim();// quita los espacios solo para la validacion
+                
+                if (input == '') {
+                    // Pass the return value in the done callback
+                    done('You need to provide a description');
+                    return;
+                }
+                // Pass the return value in the done callback
+                done(null, true);
+                
             }
-            return true;
-        }
-    }
-];
-const {desc}= await inquirer.prompt(question);
-return desc
+            })
+        
+        return input;
+
 }
+    const menuBorrar = async (tareas = [])=>{ // menu de items a borrar 
+        // lista las tareas en el apartado de borrar
+        const choices = tareas.map( (tarea, i) => {
+        
+            const idx = `${i + 1}.`.green;
+        
+            return {
+                value: tarea,
+                name:  `${ idx } ${ tarea.descri.descripcion}`
+            }
+        });
+        choices.unshift({
+            value: '0',
+            name: '0.'.green + ' Cancelar'
+        });
+        
+        const preguntas = [
+            {
+                type: 'list',
+                name: 'id',
+                pageSize: 20,
+                message: 'Borrar',
+                choices
+            }
+        ]
+        const { id } = await inquirer.prompt(preguntas);
+        return id.id;
+        }
+        const confirmar = async(message) => {// confirmacion para borrar tareas
+    
+        const question = [
+            {
+                type: 'confirm',
+                name: 'ok',
+                message
+            }
+        ];
+        
+        const { ok } = await inquirer.prompt(question);
+        return ok;
+        } 
+    
 module.exports={
     inquirerMenu,
     pausa,
-    leerInput
+    leerInput,
+    menuBorrar,
+    confirmar
+    
 }
